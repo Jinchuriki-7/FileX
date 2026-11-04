@@ -13,6 +13,7 @@ Supported conversions:
   IMG  → PDF   (via Pillow)
 """
 
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -110,7 +111,29 @@ class PdfConverter:
     # ------------------------------------------------------------------
 
     def _pdf_to_image(self, source: str, output: str, target_ext: str) -> str:
-        """Rasterise first page of PDF to an image."""
+        """Rasterise first page of PDF to an image using QtPdf (no external Poppler required)."""
+        try:
+            from PySide6.QtPdf import QPdfDocument
+            from PySide6.QtCore import QSize
+            from PySide6.QtWidgets import QApplication
+
+            _ = QApplication.instance() or QApplication(sys.argv)
+            doc = QPdfDocument()
+            doc.load(str(source))
+            if doc.pageCount() > 0:
+                pt_size = doc.pagePointSize(0)
+                # Render at 2x scale for sharp output
+                w = max(100, int(pt_size.width() * 2))
+                h = max(100, int(pt_size.height() * 2))
+                qimg = doc.render(0, QSize(w, h))
+                doc.close()
+                if not qimg.isNull():
+                    qimg.save(str(output))
+                    return output
+        except Exception:
+            pass
+
+        # Fallback to pdf2image if installed and poppler is present
         try:
             from pdf2image import convert_from_path
             images = convert_from_path(source, dpi=150, first_page=1, last_page=1)
@@ -120,14 +143,12 @@ class PdfConverter:
                     img = img.convert("RGB")
                 img.save(output)
                 return output
-        except ImportError:
-            pass
+        except Exception as exc:
+            raise RuntimeError(
+                f"Failed to rasterise PDF to image: {exc}"
+            ) from exc
 
-        # Fallback: use reportlab + pypdf to draw page as image
-        # (very basic — just saves a placeholder)
-        raise RuntimeError(
-            "pdf2image is not installed. Install it and Poppler to convert PDF pages to images."
-        )
+        raise RuntimeError("Failed to render PDF page to image.")
 
     # ------------------------------------------------------------------
     # Image → PDF
