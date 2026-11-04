@@ -144,11 +144,68 @@ def ensure_dir(directory: str) -> Path:
     return p
 
 
+def open_file(file_path: str) -> bool:
+    """
+    Open a file with the default associated application on Windows.
+
+    Args:
+        file_path: Path to the file to open.
+
+    Returns:
+        True if launched successfully, False otherwise.
+    """
+    try:
+        p = Path(file_path)
+        if not p.exists():
+            return False
+        os.startfile(str(p.resolve()))
+        return True
+    except Exception:
+        try:
+            import subprocess
+            subprocess.Popen(["explorer.exe", str(Path(file_path).resolve())])
+            return True
+        except Exception:
+            return False
+
+
+def open_containing_folder(target_path: str) -> bool:
+    """
+    Open the containing directory in Windows Explorer.
+    If target_path is a file, selects/highlights the file in Explorer.
+
+    Args:
+        target_path: Path to a file or directory.
+
+    Returns:
+        True if opened successfully, False otherwise.
+    """
+    try:
+        p = Path(target_path).resolve()
+        if p.is_file():
+            import subprocess
+            subprocess.Popen(["explorer.exe", f"/select,{str(p)}"])
+            return True
+        elif p.is_dir():
+            os.startfile(str(p))
+            return True
+        elif p.parent.exists():
+            os.startfile(str(p.parent))
+            return True
+        return False
+    except Exception:
+        try:
+            p = Path(target_path).resolve()
+            folder = str(p.parent if p.is_file() else p)
+            os.startfile(folder)
+            return True
+        except Exception:
+            return False
+
+
 def open_in_explorer(path: str) -> None:
     """Open the containing folder in Windows Explorer and select the file."""
-    p = Path(path)
-    target = str(p.parent) if p.is_file() else str(p)
-    os.startfile(target)
+    open_containing_folder(path)
 
 
 # ---------------------------------------------------------------------------
