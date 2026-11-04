@@ -68,3 +68,5 @@ htmlcov/
 output/
 converted/
 *.bak
+bin/*.exe
+*.exe
