@@ -117,6 +117,9 @@ class MainWindow(QMainWindow):
 
         root_layout.addWidget(self.stack, 1)
 
+        # Highlight default page after pages are attached
+        self._set_active_nav(0)
+
     def _build_sidebar(self) -> QFrame:
         sidebar = QFrame(self)
         sidebar.setObjectName("sidebarFrame")
@@ -187,8 +190,6 @@ class MainWindow(QMainWindow):
         pill_layout.addWidget(self.btn_toggle_float)
         layout.addWidget(widget_pill)
 
-        # Highlight default page
-        self._set_active_nav(0)
         return sidebar
 
     def _create_nav_button(self, text: str, page_index: int) -> QPushButton:
