@@ -53,6 +53,7 @@ tmp/
 
 # PyInstaller
 *.spec
+!FileX.spec
 dist/
 build/
 
