@@ -50,7 +50,8 @@ class NotificationManager:
 
     def __init__(self) -> None:
         # Icon path for the toast (optional — works without it)
-        icon_path = Path(__file__).resolve().parent.parent / "assets" / "images" / "logo.ico"
+        base_dir = Path(sys._MEIPASS) if getattr(sys, "frozen", False) else Path(__file__).resolve().parent.parent
+        icon_path = base_dir / "assets" / "images" / "logo.ico"
         self._icon: Optional[str] = str(icon_path) if icon_path.exists() else None
         self._toaster = ToastNotifier() if _TOAST_AVAILABLE else None
 

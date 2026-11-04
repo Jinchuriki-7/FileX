@@ -357,7 +357,8 @@ class MainWindow(QMainWindow):
     # ----------------------------------------------------------------------
     def _setup_system_tray(self) -> None:
         self.tray_icon = QSystemTrayIcon(self)
-        icon_path = Path(__file__).resolve().parent.parent / "assets" / "images" / "logo.png"
+        base_dir = Path(sys._MEIPASS) if getattr(sys, "frozen", False) else Path(__file__).resolve().parent.parent
+        icon_path = base_dir / "assets" / "images" / "logo.png"
         if icon_path.exists():
             self.tray_icon.setIcon(QIcon(str(icon_path)))
         else:

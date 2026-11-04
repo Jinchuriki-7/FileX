@@ -10,7 +10,7 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Ensure the project root is on sys.path so all sub-packages resolve correctly
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(sys._MEIPASS) if getattr(sys, chr(102)+chr(114)+chr(111)+chr(122)+chr(101)+chr(110), False) else Path(__file__).resolve().parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 # ---------------------------------------------------------------------------
