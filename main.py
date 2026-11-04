@@ -10,8 +10,17 @@ from pathlib import Path
 # ---------------------------------------------------------------------------
 # Ensure the project root is on sys.path so all sub-packages resolve correctly
 # ---------------------------------------------------------------------------
-PROJECT_ROOT = Path(sys._MEIPASS) if getattr(sys, chr(102)+chr(114)+chr(111)+chr(122)+chr(101)+chr(110), False) else Path(__file__).resolve().parent
+if getattr(sys, 'frozen', False):
+    PROJECT_ROOT = Path(sys._MEIPASS)
+else:
+    PROJECT_ROOT = Path(__file__).resolve().parent
+
 sys.path.insert(0, str(PROJECT_ROOT))
+
+# Add bundled or local bin/ directory to PATH so FFmpeg/FFprobe are immediately discoverable
+bin_dir = PROJECT_ROOT / 'bin'
+if bin_dir.exists():
+    os.environ['PATH'] = str(bin_dir) + os.pathsep + os.environ.get('PATH', '')
 
 # ---------------------------------------------------------------------------
 # Qt / PySide6 imports
