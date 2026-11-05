@@ -17,12 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Wpf.Ui" Version="3.4.2.7" />
+    <Resource Include="Assets\logo.ico" />
+    <Resource Include="Assets\logo.png" />
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Assets\logo.ico" />
-    <Resource Include="Assets\logo.png" />
+    <PackageReference Include="WPF-UI" Version="4.3.0" />
   </ItemGroup>
 </Project>
 

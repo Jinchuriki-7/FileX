@@ -1,0 +1,99 @@
+<Page x:Class="FileX.UI.Views.SettingsPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Settings">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="32" MaxWidth="800" HorizontalAlignment="Left">
+            <!-- Header -->
+            <StackPanel>
+                <TextBlock Text="Settings &amp; Preferences" FontSize="24" FontWeight="Bold" Foreground="#F8FAFC" />
+                <TextBlock Text="Customize application preferences, output directories, and Windows integration." Foreground="#94A3B8" />
+            </StackPanel>
+
+            <!-- Floating Widget Section -->
+            <ui:Card Padding="20" Background="#1A1B2B" BorderBrush="#282A44">
+                <StackPanel>
+                    <TextBlock Text="Floating Widget" FontSize="16" FontWeight="SemiBold" Foreground="#F1F5F9" />
+
+                    <CheckBox x:Name="ChkShowFloatingWidget"
+                              Content="Show Floating Widget on desktop"
+                              Checked="ChkShowFloatingWidget_Changed"
+                              Unchecked="ChkShowFloatingWidget_Changed" />
+
+                    <CheckBox x:Name="ChkAlwaysOnTop"
+                              Content="Keep Floating Widget always on top"
+                              Checked="ChkAlwaysOnTop_Changed"
+                              Unchecked="ChkAlwaysOnTop_Changed" />
+
+                    <StackPanel Margin="0,4,0,0">
+                        <Grid>
+                            <TextBlock Text="Widget Opacity:" Foreground="#CBD5E1" />
+                            <TextBlock x:Name="TxtOpacityValue" Text="95%" HorizontalAlignment="Right" Foreground="#7C4DFF" FontWeight="Bold" />
+                        </Grid>
+                        <Slider x:Name="SliderOpacity"
+                                Minimum="40"
+                                Maximum="100"
+                                Value="95"
+                                ValueChanged="SliderOpacity_ValueChanged" />
+                    </StackPanel>
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Output & Files Section -->
+            <ui:Card Padding="20" Background="#1A1B2B" BorderBrush="#282A44">
+                <StackPanel>
+                    <TextBlock Text="Output &amp; File Management" FontSize="16" FontWeight="SemiBold" Foreground="#F1F5F9" />
+
+                    <StackPanel>
+                        <TextBlock Text="Default Output Folder:" Foreground="#CBD5E1" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBox x:Name="TxtOutputFolder" IsReadOnly="True" />
+                            <ui:Button Grid.Column="1"
+                                       Content="Browse…"
+                                       Appearance="Secondary"
+                                       Margin="8,0,0,0"
+                                       Click="BrowseOutputFolder_Click" />
+                        </Grid>
+                    </StackPanel>
+
+                    <CheckBox x:Name="ChkOpenAfter"
+                              Content="Open containing folder automatically after conversion finishes"
+                              Checked="ChkOpenAfter_Changed"
+                              Unchecked="ChkOpenAfter_Changed" />
+
+                    <CheckBox x:Name="ChkOverwrite"
+                              Content="Overwrite existing files without renaming"
+                              Checked="ChkOverwrite_Changed"
+                              Unchecked="ChkOverwrite_Changed" />
+                </StackPanel>
+            </ui:Card>
+
+            <!-- Windows Integration Section -->
+            <ui:Card Padding="20" Background="#1A1B2B" BorderBrush="#282A44">
+                <StackPanel>
+                    <TextBlock Text="Windows &amp; System" FontSize="16" FontWeight="SemiBold" Foreground="#F1F5F9" />
+
+                    <CheckBox x:Name="ChkStartup"
+                              Content="Start FileX automatically with Windows"
+                              Checked="ChkStartup_Changed"
+                              Unchecked="ChkStartup_Changed" />
+
+                    <CheckBox x:Name="ChkNotifications"
+                              Content="Show desktop notifications on conversion completion"
+                              Checked="ChkNotifications_Changed"
+                              Unchecked="ChkNotifications_Changed" />
+
+                    <CheckBox x:Name="ChkStartMinimised"
+                              Content="Start minimized to System Tray"
+                              Checked="ChkStartMinimised_Changed"
+                              Unchecked="ChkStartMinimised_Changed" />
+                </StackPanel>
+            </ui:Card>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

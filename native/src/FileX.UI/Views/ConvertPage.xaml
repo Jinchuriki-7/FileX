@@ -1,0 +1,49 @@
+<Page x:Class="FileX.UI.Views.ConvertPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+      Title="Convert">
+    <Grid Margin="32">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="200" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Convert Files" FontSize="24" FontWeight="Bold" Foreground="#F8FAFC" />
+            <TextBlock Text="Drag and drop files from Windows Explorer or click below to browse." Foreground="#94A3B8" />
+        </StackPanel>
+
+        <!-- Drop Zone -->
+        <Border Grid.Row="1"
+                x:Name="DropZoneBorder"
+                Background="#161726"
+                BorderBrush="#3D4066"
+                BorderThickness="2"
+                CornerRadius="14"
+                AllowDrop="True"
+                Cursor="Hand"
+                Drop="DropZone_Drop"
+                DragEnter="DropZone_DragEnter"
+                DragLeave="DropZone_DragLeave"
+                MouseDown="DropZone_MouseDown">
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock x:Name="TxtDropIcon" Text="📥" FontSize="44" HorizontalAlignment="Center" />
+                <TextBlock x:Name="TxtDropTitle" Text="Drop files here to convert" FontSize="16" FontWeight="SemiBold" Foreground="#F1F5F9" HorizontalAlignment="Center" />
+                <TextBlock Text="or click to browse from your computer" FontSize="12" Foreground="#94A3B8" HorizontalAlignment="Center" />
+                <TextBlock Text="Supported: Images • Documents • PDFs • Spreadsheets • Audio • Video" FontSize="11" Foreground="#64748B" HorizontalAlignment="Center" Margin="0,4,0,0" />
+            </StackPanel>
+        </Border>
+
+        <!-- Queue Section Header -->
+        <TextBlock Grid.Row="2" Text="Active &amp; Recent Conversions" FontSize="16" FontWeight="Bold" Foreground="#F1F5F9" Margin="0,20,0,12" />
+
+        <!-- Queue Task Cards -->
+        <ScrollViewer Grid.Row="3" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="TaskQueuePanel" />
+        </ScrollViewer>
+    </Grid>
+</Page>
