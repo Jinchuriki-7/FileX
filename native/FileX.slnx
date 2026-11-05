@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/FileX.Core/FileX.Core.csproj" />
+    <Project Path="src/FileX.Infrastructure/FileX.Infrastructure.csproj" />
+    <Project Path="src/FileX.Tests/FileX.Tests.csproj" />
+    <Project Path="src/FileX.UI/FileX.UI.csproj" />
+  </Folder>
+</Solution>

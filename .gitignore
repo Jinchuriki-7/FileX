@@ -71,3 +71,13 @@ converted/
 *.bak
 bin/*.exe
 *.exe
+
+# .NET Build Output
+[Bb]in/
+[Oo]bj/
+**/[Bb]in/
+**/[Oo]bj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
