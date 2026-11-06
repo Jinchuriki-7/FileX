@@ -1,4 +1,4 @@
-; Script generated for FileX Native Windows Desktop Application
+; Script generated for FileX Windows Desktop Application
 ; Inno Setup 6 Script
 
 #define MyAppName "FileX"
@@ -6,7 +6,7 @@
 #define MyAppPublisher "FileX Software"
 #define MyAppURL "https://github.com/Jinchuriki-7/FileX"
 #define MyAppExeName "FileX.exe"
-#define MyAppSourceDir "..\dist\app"
+#define MyAppSourceDir "..\..\dist\FileX"
 
 [Setup]
 ; Basic Application Info
@@ -28,8 +28,8 @@ ArchitecturesAllowed=x64compatible
 ; Output
 OutputDir=..\dist\installer
 OutputBaseFilename=FileX_Setup
-SetupIconFile=..\src\FileX.UI\Assets\logo.ico
-UninstallDisplayIcon={app}\Assets\logo.ico
+SetupIconFile=..\..\assets\images\logo.ico
+UninstallDisplayIcon={app}\assets\images\logo.ico
 
 ; Compression & Styling
 Compression=lzma2/ultra64
@@ -52,16 +52,16 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "startupicon"; Description: "Launch FileX automatically on Windows startup"; GroupDescription: "Windows Integration:"; Flags: unchecked
 
 [Files]
-; Primary Application Executable and Runtime
+; Standalone Windows Application files
 Source: "{#MyAppSourceDir}\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
-Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\Assets\logo.ico"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\Assets\logo.ico"
-Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startupicon; IconFilename: "{app}\Assets\logo.ico"
+Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; IconFilename: "{app}\assets\images\logo.ico"
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon; IconFilename: "{app}\assets\images\logo.ico"
+Name: "{userstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: startupicon; IconFilename: "{app}\assets\images\logo.ico"
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [UninstallDelete]
-Type: filesandordirs; Name: "{localappdata}\FileX\cache"
+Type: filesandordirs; Name: "{localappdata}\FileX"
