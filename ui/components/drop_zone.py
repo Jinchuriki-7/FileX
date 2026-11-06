@@ -14,8 +14,8 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
     QLabel,
     QFileDialog,
-    QGraphicsDropShadowEffect,
 )
+from utils.icon_utils import get_svg_pixmap
 
 
 class DropZone(QWidget):
@@ -38,7 +38,7 @@ class DropZone(QWidget):
         super().__init__(parent)
         self.setAcceptDrops(True)
         self.setCursor(QCursor(Qt.PointingHandCursor))
-        self.setMinimumHeight(180)
+        self.setMinimumHeight(190)
 
         self._is_drag_over = False
         self._title_text = title
@@ -47,27 +47,26 @@ class DropZone(QWidget):
         # Internal Layout
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignCenter)
-        layout.setSpacing(8)
+        layout.setSpacing(6)
 
-        # Icon Label
-        self.icon_label = QLabel("📥", self)
+        # Vector Icon Label
+        self.icon_label = QLabel(self)
         self.icon_label.setAlignment(Qt.AlignCenter)
-        font_icon = QFont("Segoe UI Emoji", 36)
-        self.icon_label.setFont(font_icon)
-        self.icon_label.setStyleSheet("background: transparent; color: #7c4dff;")
+        self.icon_label.setPixmap(get_svg_pixmap("upload", "#8957FF", 36))
+        self.icon_label.setStyleSheet("background: transparent;")
 
         # Title Label
         self.lbl_title = QLabel(self._title_text, self)
         self.lbl_title.setAlignment(Qt.AlignCenter)
         self.lbl_title.setStyleSheet(
-            "background: transparent; color: #f1f5f9; font-size: 16px; font-weight: 600;"
+            "background: transparent; color: #F5F5FA; font-size: 16px; font-weight: 700;"
         )
 
         # Subtitle Label
         self.lbl_subtitle = QLabel(self._subtitle_text, self)
         self.lbl_subtitle.setAlignment(Qt.AlignCenter)
         self.lbl_subtitle.setStyleSheet(
-            "background: transparent; color: #94a3b8; font-size: 13px;"
+            "background: transparent; color: #9CA3B8; font-size: 13px;"
         )
 
         # Formats Hint
@@ -76,7 +75,7 @@ class DropZone(QWidget):
         )
         self.lbl_formats.setAlignment(Qt.AlignCenter)
         self.lbl_formats.setStyleSheet(
-            "background: transparent; color: #64748b; font-size: 11px; margin-top: 6px;"
+            "background: transparent; color: #687087; font-size: 11px; margin-top: 4px;"
         )
 
         layout.addWidget(self.icon_label)
@@ -92,17 +91,15 @@ class DropZone(QWidget):
         painter.setRenderHint(QPainter.Antialiasing)
 
         rect = QRectF(self.rect()).adjusted(2, 2, -2, -2)
-        corner_radius = 14.0
+        corner_radius = 12.0
 
         if self._is_drag_over:
-            # Highlighted active dragging style
-            bg_color = QColor(124, 77, 255, 35)
-            border_color = QColor(124, 77, 255, 230)
+            bg_color = QColor(137, 87, 255, 30)
+            border_color = QColor(137, 87, 255, 230)
             pen = QPen(border_color, 2, Qt.DashLine)
         else:
-            # Idle resting style
-            bg_color = QColor(24, 25, 38, 160)
-            border_color = QColor(58, 62, 92, 180)
+            bg_color = QColor(18, 20, 31, 200)
+            border_color = QColor(41, 45, 64, 220)
             pen = QPen(border_color, 1.5, Qt.DashLine)
 
         painter.setBrush(bg_color)
@@ -118,8 +115,9 @@ class DropZone(QWidget):
             self._is_drag_over = True
             self.lbl_title.setText("Release to start conversion!")
             self.lbl_title.setStyleSheet(
-                "background: transparent; color: #a78bfa; font-size: 16px; font-weight: 700;"
+                "background: transparent; color: #A78BFA; font-size: 16px; font-weight: 700;"
             )
+            self.icon_label.setPixmap(get_svg_pixmap("upload", "#38BDF8", 36))
             self.update()
         else:
             event.ignore()
@@ -134,8 +132,9 @@ class DropZone(QWidget):
         self._is_drag_over = False
         self.lbl_title.setText(self._title_text)
         self.lbl_title.setStyleSheet(
-            "background: transparent; color: #f1f5f9; font-size: 16px; font-weight: 600;"
+            "background: transparent; color: #F5F5FA; font-size: 16px; font-weight: 700;"
         )
+        self.icon_label.setPixmap(get_svg_pixmap("upload", "#8957FF", 36))
         self.update()
         super().dragLeaveEvent(event)
 
@@ -143,8 +142,9 @@ class DropZone(QWidget):
         self._is_drag_over = False
         self.lbl_title.setText(self._title_text)
         self.lbl_title.setStyleSheet(
-            "background: transparent; color: #f1f5f9; font-size: 16px; font-weight: 600;"
+            "background: transparent; color: #F5F5FA; font-size: 16px; font-weight: 700;"
         )
+        self.icon_label.setPixmap(get_svg_pixmap("upload", "#8957FF", 36))
         self.update()
 
         paths: List[str] = []
@@ -161,16 +161,16 @@ class DropZone(QWidget):
             event.ignore()
 
     # ----------------------------------------------------------------------
-    # Click Event — Trigger File Dialog
+    # Click to Browse Files
     # ----------------------------------------------------------------------
     def mousePressEvent(self, event) -> None:
         if event.button() == Qt.LeftButton:
-            files, _ = QFileDialog.getOpenFileNames(
+            selected_files, _ = QFileDialog.getOpenFileNames(
                 self,
                 "Select Files to Convert",
                 "",
-                "All Files (*.*)",
+                "All Supported Files (*.*);;Images (*.png *.jpg *.jpeg *.webp *.bmp *.tiff *.ico);;Documents (*.docx *.txt *.pdf *.html *.md);;Spreadsheets (*.xlsx *.csv *.ods);;Media (*.mp4 *.mkv *.mp3 *.wav *.flac)",
             )
-            if files:
-                self.files_dropped.emit(files)
+            if selected_files:
+                self.files_dropped.emit(selected_files)
         super().mousePressEvent(event)
