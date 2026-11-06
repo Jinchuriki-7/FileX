@@ -2,8 +2,9 @@
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
-      Title="History">
-    <Grid Margin="32">
+      Title="History"
+      Background="#0F111A">
+    <Grid Margin="28,24,28,28">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -12,22 +13,39 @@
 
         <!-- Header & Action Row -->
         <Grid Grid.Row="0" Margin="0,0,0,20">
-            <StackPanel>
-                <TextBlock Text="Conversion History" FontSize="24" FontWeight="Bold" Foreground="#F8FAFC" />
-                <TextBlock Text="Track and access previously converted files and their locations." Foreground="#94A3B8" />
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="Conversion History"
+                           FontSize="22"
+                           FontWeight="Bold"
+                           Foreground="#F5F5FA"
+                           Margin="0,0,0,4" />
+                <TextBlock Text="Track and access previously converted files and their locations."
+                           FontSize="13"
+                           Foreground="#9CA3B8" />
             </StackPanel>
 
-            <ui:Button Content="🗑  Clear History"
+            <ui:Button Grid.Column="1"
+                       Content="Clear History"
                        Appearance="Danger"
                        HorizontalAlignment="Right"
                        VerticalAlignment="Center"
+                       Padding="14,8"
                        Click="ClearHistory_Click" />
         </Grid>
 
         <!-- Search Bar -->
         <Grid Grid.Row="1" Margin="0,0,0,16">
             <ui:TextBox x:Name="SearchBox"
-                        PlaceholderText="🔍  Search by file name or format…"
+                        PlaceholderText="Search files..."
+                        Background="#12141F"
+                        BorderBrush="#292D40"
+                        Foreground="#F5F5FA"
+                        Padding="12,10"
                         TextChanged="SearchBox_TextChanged" />
         </Grid>
 
@@ -39,11 +57,31 @@
                   IsReadOnly="True"
                   HeadersVisibility="Column"
                   GridLinesVisibility="Horizontal"
-                  Background="#161726"
-                  BorderBrush="#282A44"
-                  RowBackground="#1A1B2B"
-                  AlternatingRowBackground="#161726"
-                  Foreground="#E2E8F0">
+                  Background="#12141F"
+                  BorderBrush="#292D40"
+                  BorderThickness="1"
+                  RowBackground="#171A27"
+                  AlternatingRowBackground="#12141F"
+                  Foreground="#E2E8F0"
+                  HorizontalGridLinesBrush="#292D40"
+                  VerticalGridLinesBrush="#292D40">
+            <DataGrid.ColumnHeaderStyle>
+                <Style TargetType="DataGridColumnHeader">
+                    <Setter Property="Background" Value="#1D2030" />
+                    <Setter Property="Foreground" Value="#9CA3B8" />
+                    <Setter Property="FontSize" Value="12" />
+                    <Setter Property="FontWeight" Value="SemiBold" />
+                    <Setter Property="Padding" Value="12,8" />
+                    <Setter Property="BorderBrush" Value="#292D40" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                </Style>
+            </DataGrid.ColumnHeaderStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="DataGridRow">
+                    <Setter Property="BorderBrush" Value="#292D40" />
+                    <Setter Property="BorderThickness" Value="0,0,0,1" />
+                </Style>
+            </DataGrid.RowStyle>
             <DataGrid.Columns>
                 <DataGridTextColumn Header="File Name" Binding="{Binding SourceFileName}" Width="*" />
                 <DataGridTextColumn Header="Format" Binding="{Binding OutputFormat}" Width="100" />
@@ -55,18 +93,20 @@
                 <DataGridTemplateColumn Header="Actions" Width="180">
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="4,2">
                                 <ui:Button Content="Open"
                                            Appearance="Secondary"
                                            Padding="8,2"
                                            FontSize="11"
+                                           Margin="0,0,4,0"
                                            Click="OpenRecordFile_Click" />
                                 <ui:Button Content="Folder"
                                            Appearance="Secondary"
                                            Padding="8,2"
                                            FontSize="11"
+                                           Margin="0,0,4,0"
                                            Click="OpenRecordFolder_Click" />
-                                <ui:Button Content="✕"
+                                <ui:Button Content="X"
                                            Appearance="Danger"
                                            Padding="6,2"
                                            FontSize="11"
