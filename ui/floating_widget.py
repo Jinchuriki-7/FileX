@@ -106,13 +106,6 @@ class FloatingWidget(QWidget):
         self._pulse_timer.timeout.connect(self._on_pulse_tick)
         self._pulse_timer.start()
 
-        # Shadow effect
-        self._shadow = QGraphicsDropShadowEffect(self)
-        self._shadow.setBlurRadius(20)
-        self._shadow.setOffset(0, 3)
-        self._shadow.setColor(QColor(137, 87, 255, 130))
-        self.setGraphicsEffect(self._shadow)
-
         self.setToolTip("FileX — Drag & drop any file to convert\nDouble-click to open dashboard")
 
     # ----------------------------------------------------------------------
@@ -123,7 +116,6 @@ class FloatingWidget(QWidget):
         self._state = self.STATE_IDLE
         self._status_text = "Drop file"
         self._progress = 0
-        self._shadow.setColor(QColor(137, 87, 255, 130))
         self.update()
 
     def set_dragging_hover(self, active: bool) -> None:
@@ -131,7 +123,6 @@ class FloatingWidget(QWidget):
         if active:
             self._state = self.STATE_DRAGGING
             self._status_text = "Drop to Convert"
-            self._shadow.setColor(QColor(56, 189, 248, 220))
         else:
             self.set_idle()
         self.update()
@@ -141,7 +132,6 @@ class FloatingWidget(QWidget):
         self._state = self.STATE_PROCESSING
         self._progress = progress
         self._status_text = f"{progress}%" if progress > 0 else message
-        self._shadow.setColor(QColor(137, 87, 255, 210))
         self.update()
 
     def _on_pulse_tick(self) -> None:
@@ -193,6 +183,16 @@ class FloatingWidget(QWidget):
             alpha = int(140 + 80 * self._pulse)
             border_color = QColor(137, 87, 255, alpha)
             border_width = 1.8
+
+        # Draw soft outer glow ring
+        glow_color = (
+            QColor(56, 189, 248, 45)
+            if self._state == self.STATE_DRAGGING
+            else QColor(137, 87, 255, int(35 + 25 * self._pulse))
+        )
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QBrush(glow_color))
+        painter.drawEllipse(center, radius + 4, radius + 4)
 
         # Draw circle background
         painter.setBrush(QBrush(bg_gradient))
