@@ -58,9 +58,7 @@ def main() -> int:
     Returns:
         int: Exit code returned to the OS.
     """
-    # High-DPI support (must be set before QApplication is created)
-    QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-    QCoreApplication.setAttribute(Qt.AA_UseHighDpiPixmaps, True)
+    # Qt 6 automatically handles High-DPI scaling natively
 
     app = QApplication(sys.argv)
     app.setApplicationName("FileX")
