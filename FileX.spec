@@ -24,6 +24,7 @@ if os.path.exists(bin_dir) and any(f.endswith('.exe') for f in os.listdir(bin_di
 
 # Hidden imports to ensure dynamic modules are packaged
 hiddenimports = [
+    'PySide6.QtSvg',
     'PySide6.QtPdf',
     'PySide6.QtCore',
     'PySide6.QtGui',
