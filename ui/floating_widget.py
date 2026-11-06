@@ -9,7 +9,7 @@ dynamic visual states (Idle, Dragging, Processing), and context menu navigation.
 from pathlib import Path
 from typing import List, Optional
 
-from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QRectF, QPropertyAnimation, QEasingCurve
+from PySide6.QtCore import Qt, QPoint, Signal, QTimer, QRectF
 from PySide6.QtGui import (
     QColor,
     QPainter,
@@ -17,21 +17,20 @@ from PySide6.QtGui import (
     QBrush,
     QFont,
     QLinearGradient,
-    QRadialGradient,
     QCursor,
     QContextMenuEvent,
     QMouseEvent,
 )
 from PySide6.QtWidgets import (
     QWidget,
-    QVBoxLayout,
-    QLabel,
     QMenu,
     QGraphicsDropShadowEffect,
+    QApplication,
 )
 
 from core.settings_manager import SettingsManager
 from core.file_detector import FileDetector
+from utils.icon_utils import get_svg_icon, get_svg_pixmap
 
 
 class FloatingWidget(QWidget):
@@ -58,25 +57,36 @@ class FloatingWidget(QWidget):
         settings: SettingsManager,
         parent: Optional[QWidget] = None,
     ) -> None:
-        super().__init__(parent)
+        # None as parent guarantees it is an independent top-level window
+        super().__init__(None)
         self._settings = settings
         self._detector = FileDetector()
 
-        # Frameless, translucent, tool window (doesn't clutter taskbar if minimized to tray)
-        self.setWindowFlags(
-            Qt.FramelessWindowHint
-            | Qt.WindowStaysOnTopHint
-            | Qt.Tool
-        )
+        # Frameless, translucent, tool window (stays visible across desktop)
+        always_on_top = self._settings.get("always_on_top", True)
+        flags = Qt.FramelessWindowHint | Qt.Tool
+        if always_on_top:
+            flags |= Qt.WindowStaysOnTopHint
+
+        self.setWindowFlags(flags)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAcceptDrops(True)
 
-        # Geometry & sizing
-        self.setFixedSize(140, 140)
+        # Sleek, compact size
+        self.setFixedSize(126, 126)
 
-        # Restore saved position
-        saved_x = self._settings.get("widget_x", 100)
-        saved_y = self._settings.get("widget_y", 150)
+        # Restore saved position or default to Top-Right of desktop (away from sidebar)
+        saved_x = self._settings.get("widget_x", None)
+        saved_y = self._settings.get("widget_y", None)
+        if saved_x is None or saved_y is None:
+            screen = QApplication.primaryScreen()
+            if screen:
+                avail = screen.availableGeometry()
+                saved_x = max(100, avail.width() - 160)
+                saved_y = 65
+            else:
+                saved_x, saved_y = 900, 80
+
         self.move(int(saved_x), int(saved_y))
 
         # Drag tracking
@@ -98,9 +108,9 @@ class FloatingWidget(QWidget):
 
         # Shadow effect
         self._shadow = QGraphicsDropShadowEffect(self)
-        self._shadow.setBlurRadius(24)
-        self._shadow.setOffset(0, 4)
-        self._shadow.setColor(QColor(0, 0, 0, 160))
+        self._shadow.setBlurRadius(20)
+        self._shadow.setOffset(0, 3)
+        self._shadow.setColor(QColor(137, 87, 255, 130))
         self.setGraphicsEffect(self._shadow)
 
         self.setToolTip("FileX — Drag & drop any file to convert\nDouble-click to open dashboard")
@@ -113,14 +123,14 @@ class FloatingWidget(QWidget):
         self._state = self.STATE_IDLE
         self._status_text = "Drop file"
         self._progress = 0
-        self._shadow.setColor(QColor(124, 77, 255, 120))
+        self._shadow.setColor(QColor(137, 87, 255, 130))
         self.update()
 
     def set_dragging_hover(self, active: bool) -> None:
         """Switch to dragging hover highlight state."""
         if active:
             self._state = self.STATE_DRAGGING
-            self._status_text = "Release to Convert"
+            self._status_text = "Drop to Convert"
             self._shadow.setColor(QColor(56, 189, 248, 220))
         else:
             self.set_idle()
@@ -131,7 +141,7 @@ class FloatingWidget(QWidget):
         self._state = self.STATE_PROCESSING
         self._progress = progress
         self._status_text = f"{progress}%" if progress > 0 else message
-        self._shadow.setColor(QColor(124, 77, 255, 200))
+        self._shadow.setColor(QColor(137, 87, 255, 210))
         self.update()
 
     def _on_pulse_tick(self) -> None:
@@ -153,7 +163,7 @@ class FloatingWidget(QWidget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing)
 
-        rect = QRectF(self.rect()).adjusted(10, 10, -10, -10)
+        rect = QRectF(self.rect()).adjusted(8, 8, -8, -8)
         center = rect.center()
         radius = rect.width() / 2.0
 
@@ -162,27 +172,27 @@ class FloatingWidget(QWidget):
         if self._state == self.STATE_DRAGGING:
             # Active Drag Hover — Neon blue gradient
             bg_gradient = QLinearGradient(rect.topLeft(), rect.bottomRight())
-            bg_gradient.setColorAt(0.0, QColor(24, 26, 45, int(240 * opacity)))
-            bg_gradient.setColorAt(1.0, QColor(14, 16, 28, int(245 * opacity)))
+            bg_gradient.setColorAt(0.0, QColor(22, 28, 48, int(245 * opacity)))
+            bg_gradient.setColorAt(1.0, QColor(15, 17, 26, int(250 * opacity)))
             border_color = QColor(56, 189, 248, 240)
-            border_width = 3.0
+            border_width = 2.5
 
         elif self._state == self.STATE_PROCESSING:
             # Processing state — Purple gradient with progress ring
             bg_gradient = QLinearGradient(rect.topLeft(), rect.bottomRight())
-            bg_gradient.setColorAt(0.0, QColor(28, 24, 48, int(240 * opacity)))
-            bg_gradient.setColorAt(1.0, QColor(16, 14, 30, int(245 * opacity)))
-            border_color = QColor(124, 77, 255, 180)
+            bg_gradient.setColorAt(0.0, QColor(26, 20, 48, int(245 * opacity)))
+            bg_gradient.setColorAt(1.0, QColor(15, 17, 26, int(250 * opacity)))
+            border_color = QColor(137, 87, 255, 180)
             border_width = 2.0
 
         else:
             # Idle state — Deep dark purple with subtle breathing glow
             bg_gradient = QLinearGradient(rect.topLeft(), rect.bottomRight())
-            bg_gradient.setColorAt(0.0, QColor(26, 27, 44, int(235 * opacity)))
-            bg_gradient.setColorAt(1.0, QColor(17, 18, 30, int(245 * opacity)))
-            alpha = int(120 + 80 * self._pulse)
-            border_color = QColor(124, 77, 255, alpha)
-            border_width = 2.0
+            bg_gradient.setColorAt(0.0, QColor(23, 26, 39, int(240 * opacity)))
+            bg_gradient.setColorAt(1.0, QColor(15, 17, 26, int(250 * opacity)))
+            alpha = int(140 + 80 * self._pulse)
+            border_color = QColor(137, 87, 255, alpha)
+            border_width = 1.8
 
         # Draw circle background
         painter.setBrush(QBrush(bg_gradient))
@@ -191,68 +201,56 @@ class FloatingWidget(QWidget):
 
         # If processing, draw progress arc
         if self._state == self.STATE_PROCESSING and self._progress > 0:
-            arc_pen = QPen(QColor(56, 189, 248), 3.5, Qt.SolidLine, Qt.RoundCap)
+            arc_pen = QPen(QColor(56, 189, 248), 3.0, Qt.SolidLine, Qt.RoundCap)
             painter.setPen(arc_pen)
             painter.setBrush(Qt.NoBrush)
-            # Qt drawArc uses 1/16th of a degree, starting at 3 o'clock (90 is top)
             start_angle = 90 * 16
             span_angle = -int((self._progress / 100.0) * 360 * 16)
             painter.drawArc(rect.adjusted(3, 3, -3, -3), start_angle, span_angle)
 
-        # Draw Center Branding & Text
+        # Draw Content inside circle
         if self._state == self.STATE_PROCESSING:
-            # Progress percentage
-            painter.setPen(QColor(241, 245, 249))
-            font_pct = QFont("Segoe UI", 16, QFont.Bold)
+            painter.setPen(QColor(245, 245, 250))
+            font_pct = QFont("Segoe UI", 15, QFont.Bold)
             painter.setFont(font_pct)
             painter.drawText(
-                QRectF(rect.left(), rect.top() + 32, rect.width(), 26),
+                QRectF(rect.left(), rect.top() + 26, rect.width(), 24),
                 Qt.AlignCenter,
                 f"{self._progress}%",
             )
-            painter.setPen(QColor(148, 163, 184))
+            painter.setPen(QColor(156, 163, 184))
             font_sub = QFont("Segoe UI", 9)
             painter.setFont(font_sub)
             painter.drawText(
-                QRectF(rect.left(), rect.top() + 60, rect.width(), 20),
+                QRectF(rect.left(), rect.top() + 52, rect.width(), 18),
                 Qt.AlignCenter,
                 "Converting",
             )
 
         elif self._state == self.STATE_DRAGGING:
-            # Active Drag icon
+            # Upload icon
+            upload_px = get_svg_pixmap("upload", "#38BDF8", 22)
+            painter.drawPixmap(int(center.x() - 11), int(rect.top() + 22), upload_px)
+
             painter.setPen(QColor(56, 189, 248))
-            font_icon = QFont("Segoe UI Emoji", 26)
-            painter.setFont(font_icon)
-            painter.drawText(
-                QRectF(rect.left(), rect.top() + 24, rect.width(), 32),
-                Qt.AlignCenter,
-                "⚡",
-            )
-            painter.setPen(QColor(226, 232, 240))
             font_sub = QFont("Segoe UI", 9, QFont.Bold)
             painter.setFont(font_sub)
             painter.drawText(
-                QRectF(rect.left(), rect.top() + 62, rect.width(), 20),
+                QRectF(rect.left(), rect.top() + 52, rect.width(), 18),
                 Qt.AlignCenter,
-                "Release",
+                "Drop to Convert",
             )
 
         else:
             # Idle logo
-            painter.setPen(QColor(167, 139, 250))
-            font_logo = QFont("Segoe UI", 18, QFont.ExtraBold)
-            painter.setFont(font_logo)
-            painter.drawText(
-                QRectF(rect.left(), rect.top() + 26, rect.width(), 28),
-                Qt.AlignCenter,
-                "FX",
-            )
-            painter.setPen(QColor(148, 163, 184))
+            zap_px = get_svg_pixmap("zap", "#8957FF", 22)
+            painter.drawPixmap(int(center.x() - 11), int(rect.top() + 22), zap_px)
+
+            painter.setPen(QColor(156, 163, 184))
             font_sub = QFont("Segoe UI", 9, QFont.DemiBold)
             painter.setFont(font_sub)
             painter.drawText(
-                QRectF(rect.left(), rect.top() + 58, rect.width(), 20),
+                QRectF(rect.left(), rect.top() + 52, rect.width(), 18),
                 Qt.AlignCenter,
                 "Drop file",
             )
@@ -275,7 +273,7 @@ class FloatingWidget(QWidget):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         if event.button() == Qt.LeftButton and self._is_moving:
             self._is_moving = False
-            # Persist the new location in settings
+            # Persist location in settings
             self._settings.set("widget_x", self.x())
             self._settings.set("widget_y", self.y())
             event.accept()
@@ -325,43 +323,24 @@ class FloatingWidget(QWidget):
     # ----------------------------------------------------------------------
     def contextMenuEvent(self, event: QContextMenuEvent) -> None:
         menu = QMenu(self)
-        menu.setStyleSheet(
-            """
-            QMenu {
-                background-color: #1a1b2b;
-                border: 1px solid #32354f;
-                border-radius: 8px;
-                padding: 6px;
-                color: #f1f5f9;
-            }
-            QMenu::item {
-                padding: 6px 18px;
-                border-radius: 4px;
-            }
-            QMenu::item:selected {
-                background-color: #7c4dff;
-                color: #ffffff;
-            }
-            """
-        )
 
-        act_dashboard = menu.addAction("📊 Open Dashboard")
+        act_dashboard = menu.addAction(get_svg_icon("dashboard", "#8957FF", 16), "Open Dashboard")
         act_dashboard.triggered.connect(self.open_main_window.emit)
 
         menu.addSeparator()
 
         always_top = self._settings.get("always_on_top", True)
-        act_top = menu.addAction("📌 Always on Top")
+        act_top = menu.addAction("Always on Top")
         act_top.setCheckable(True)
         act_top.setChecked(always_top)
         act_top.triggered.connect(self._toggle_always_on_top)
 
         menu.addSeparator()
 
-        act_hide = menu.addAction("👁️ Hide Floating Widget")
+        act_hide = menu.addAction("Hide Widget")
         act_hide.triggered.connect(self.hide)
 
-        act_exit = menu.addAction("🚪 Exit FileX")
+        act_exit = menu.addAction("Exit FileX")
         act_exit.triggered.connect(self.request_close.emit)
 
         menu.exec(event.globalPos())
