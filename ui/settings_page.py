@@ -21,7 +21,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QFileDialog,
     QSlider,
-    QComboBox,
     QSpinBox,
     QFrame,
     QScrollArea,
@@ -30,6 +29,7 @@ from PySide6.QtWidgets import (
 
 from core.settings_manager import SettingsManager
 from utils.windows_utils import add_to_startup, remove_from_startup, is_in_startup
+from utils.icon_utils import get_svg_icon, get_svg_pixmap
 
 
 class SettingsPage(QWidget):
@@ -69,8 +69,8 @@ class SettingsPage(QWidget):
 
         content = QWidget()
         self.layout = QVBoxLayout(content)
-        self.layout.setContentsMargins(28, 28, 28, 28)
-        self.layout.setSpacing(24)
+        self.layout.setContentsMargins(28, 24, 28, 28)
+        self.layout.setSpacing(18)
 
         # Page Header
         header_box = QVBoxLayout()
@@ -100,6 +100,9 @@ class SettingsPage(QWidget):
         # Section 4: Engine Status (FFmpeg & LibreOffice)
         self.layout.addWidget(self._build_engine_section(content))
 
+        # Section 5: About FileX
+        self.layout.addWidget(self._build_about_section(content))
+
         self.layout.addStretch()
         scroll.setWidget(content)
         root_layout.addWidget(scroll)
@@ -107,9 +110,18 @@ class SettingsPage(QWidget):
     def _create_card(self, title: str, parent: QWidget) -> tuple[QFrame, QVBoxLayout]:
         card = QFrame(parent)
         card.setObjectName("cardFrame")
+        card.setStyleSheet(
+            """
+            QFrame#cardFrame {
+                background-color: #171A27;
+                border: 1px solid #292D40;
+                border-radius: 10px;
+            }
+            """
+        )
         card_layout = QVBoxLayout(card)
-        card_layout.setContentsMargins(20, 18, 20, 18)
-        card_layout.setSpacing(14)
+        card_layout.setContentsMargins(20, 16, 20, 16)
+        card_layout.setSpacing(12)
 
         lbl_section = QLabel(title, card)
         lbl_section.setObjectName("sectionTitle")
@@ -121,7 +133,7 @@ class SettingsPage(QWidget):
     # Section Builders
     # ----------------------------------------------------------------------
     def _build_widget_section(self, parent: QWidget) -> QFrame:
-        card, layout = self._create_card("Floating Widget", parent)
+        card, layout = self._create_card("Floating Desktop Widget", parent)
 
         # Toggle widget visible
         self.chk_widget_visible = QCheckBox("Show Floating Widget on desktop", card)
@@ -139,13 +151,13 @@ class SettingsPage(QWidget):
         # Widget Opacity Slider
         opacity_box = QHBoxLayout()
         lbl_op = QLabel("Widget Opacity:", card)
-        lbl_op.setStyleSheet("color: #cbd5e1;")
+        lbl_op.setStyleSheet("color: #9CA3B8;")
         self.slider_opacity = QSlider(Qt.Horizontal, card)
         self.slider_opacity.setRange(40, 100)
         self.slider_opacity.setValue(95)
         self.lbl_opacity_val = QLabel("95%", card)
         self.lbl_opacity_val.setFixedWidth(40)
-        self.lbl_opacity_val.setStyleSheet("color: #7c4dff; font-weight: 600;")
+        self.lbl_opacity_val.setStyleSheet("color: #8957FF; font-weight: 700;")
         self.slider_opacity.valueChanged.connect(self._on_opacity_changed)
 
         opacity_box.addWidget(lbl_op)
@@ -156,11 +168,11 @@ class SettingsPage(QWidget):
         return card
 
     def _build_output_section(self, parent: QWidget) -> QFrame:
-        card, layout = self._create_card("Output & Files", parent)
+        card, layout = self._create_card("Output & File Rules", parent)
 
         # Output Directory
         dir_label = QLabel("Default Output Directory:", card)
-        dir_label.setStyleSheet("color: #cbd5e1;")
+        dir_label.setStyleSheet("color: #9CA3B8; font-size: 12px;")
         layout.addWidget(dir_label)
 
         dir_box = QHBoxLayout()
@@ -168,6 +180,7 @@ class SettingsPage(QWidget):
         self.txt_out_dir.setReadOnly(True)
 
         btn_browse = QPushButton("Browse…", card)
+        btn_browse.setIcon(get_svg_icon("folder-open", "#F5F5FA", 14))
         btn_browse.setCursor(QCursor(Qt.PointingHandCursor))
         btn_browse.clicked.connect(self._browse_dir)
 
@@ -191,7 +204,7 @@ class SettingsPage(QWidget):
         return card
 
     def _build_system_section(self, parent: QWidget) -> QFrame:
-        card, layout = self._create_card("System & Notifications", parent)
+        card, layout = self._create_card("System & Windows Integration", parent)
 
         # Start with Windows
         self.chk_startup = QCheckBox("Start FileX automatically with Windows", card)
@@ -206,7 +219,7 @@ class SettingsPage(QWidget):
         layout.addWidget(self.chk_notifications)
 
         # Start minimized
-        self.chk_minimized = QCheckBox("Start minimized in System Tray", card)
+        self.chk_minimized = QCheckBox("Start minimized to System Tray", card)
         self.chk_minimized.toggled.connect(
             lambda v: self.settings.set("start_minimised", v)
         )
@@ -215,7 +228,7 @@ class SettingsPage(QWidget):
         # Max History Entries
         history_box = QHBoxLayout()
         lbl_hist = QLabel("Max history records to retain:", card)
-        lbl_hist.setStyleSheet("color: #cbd5e1;")
+        lbl_hist.setStyleSheet("color: #9CA3B8;")
         self.spin_history = QSpinBox(card)
         self.spin_history.setRange(50, 5000)
         self.spin_history.setSingleStep(50)
@@ -235,13 +248,13 @@ class SettingsPage(QWidget):
         card, layout = self._create_card("Conversion Engines Status", parent)
 
         # Check FFmpeg
-        ffmpeg_found = shutil.which("ffmpeg") is not None
+        ffmpeg_found = shutil.which("ffmpeg") is not None or Path("bin/ffmpeg.exe").exists()
         lbl_ffmpeg = QLabel(
-            f"🎬 FFmpeg (Audio/Video): {'✓ Detected on System PATH' if ffmpeg_found else '⚠ Not in PATH (Built-in fallbacks enabled)'}",
+            f"FFmpeg (Audio / Video): {'✓ Ready & Accelerated' if ffmpeg_found else '⚠ Missing from PATH'}",
             card,
         )
         lbl_ffmpeg.setStyleSheet(
-            f"color: {'#34d399' if ffmpeg_found else '#fbbf24'}; font-weight: 500;"
+            f"color: {'#22C55E' if ffmpeg_found else '#EF4444'}; font-weight: 600; font-size: 12px;"
         )
         layout.addWidget(lbl_ffmpeg)
 
@@ -252,14 +265,44 @@ class SettingsPage(QWidget):
             or Path(r"C:\Program Files\LibreOffice\program\soffice.exe").exists()
         )
         lbl_lo = QLabel(
-            f"📄 LibreOffice Headless (DOCX/PPTX to PDF): {'✓ Detected' if lo_found else 'ℹ Optional (PyMuPDF & python-docx used directly)'}",
+            f"Office Engine (DOCX/PPTX to PDF): {'✓ Detected' if lo_found else 'ℹ Optional (Native PyMuPDF & docx active)'}",
             card,
         )
         lbl_lo.setStyleSheet(
-            f"color: {'#34d399' if lo_found else '#94a3b8'}; font-weight: 500;"
+            f"color: {'#22C55E' if lo_found else '#9CA3B8'}; font-weight: 500; font-size: 12px;"
         )
         layout.addWidget(lbl_lo)
 
+        return card
+
+    def _build_about_section(self, parent: QWidget) -> QFrame:
+        card, layout = self._create_card("About FileX", parent)
+
+        about_box = QHBoxLayout()
+        about_box.setSpacing(14)
+
+        logo_lbl = QLabel(card)
+        logo_lbl.setPixmap(get_svg_pixmap("zap", "#8957FF", 32))
+        about_box.addWidget(logo_lbl)
+
+        info_layout = QVBoxLayout()
+        info_layout.setSpacing(3)
+
+        title_lbl = QLabel("FileX v1.0.0 — Universal File Converter", card)
+        title_lbl.setStyleSheet("color: #F5F5FA; font-weight: 700; font-size: 14px;")
+
+        desc_lbl = QLabel(
+            "Commercial-grade desktop conversion engine. 100% offline & local processing.\n"
+            "GitHub Repository: https://github.com/Jinchuriki-7/FileX",
+            card,
+        )
+        desc_lbl.setStyleSheet("color: #9CA3B8; font-size: 11px;")
+
+        info_layout.addWidget(title_lbl)
+        info_layout.addWidget(desc_lbl)
+        about_box.addLayout(info_layout, 1)
+
+        layout.addLayout(about_box)
         return card
 
     # ----------------------------------------------------------------------
@@ -283,7 +326,6 @@ class SettingsPage(QWidget):
 
         self.spin_history.setValue(self.settings.get("max_history_entries", 500))
 
-        # Check startup registration
         try:
             self.chk_startup.setChecked(is_in_startup())
         except Exception:
