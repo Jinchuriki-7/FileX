@@ -9,27 +9,32 @@
         MinWidth="860"
         WindowStartupLocation="CenterScreen"
         ExtendsContentIntoTitleBar="True"
-        WindowBackdropType="Mica">
+        WindowBackdropType="Mica"
+        Background="#0B0D14">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <!-- Windows 11 Fluent Title Bar -->
+        <!-- Fluent Title Bar -->
         <ui:TitleBar Grid.Row="0"
                      Title="FileX — Universal File Converter"
                      Icon="/Assets/logo.png" />
 
-        <!-- Main Content Area with Sidebar Navigation -->
+        <!-- Main layout: Sidebar + Content -->
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="230" />
+                <ColumnDefinition Width="220" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
 
             <!-- Sidebar -->
-            <Border Grid.Column="0" Background="#141522" BorderBrush="#232536" BorderThickness="0,0,1,0" Padding="16,20">
+            <Border Grid.Column="0"
+                    Background="#10121C"
+                    BorderBrush="#1A1D2E"
+                    BorderThickness="0,0,1,0"
+                    Padding="16,20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
@@ -37,61 +42,81 @@
                         <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
-                    <!-- Branding Header -->
-                    <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⚡" FontSize="20" Foreground="#7C4DFF" VerticalAlignment="Center" />
-                            <TextBlock Text="FileX" FontSize="20" FontWeight="ExtraBold" Foreground="#FFFFFF" VerticalAlignment="Center" />
-                            <Border Background="#272844" CornerRadius="4" Padding="6,2" VerticalAlignment="Center" Margin="6,0,0,0">
-                                <TextBlock Text="PRO" FontSize="10" FontWeight="Bold" Foreground="#A78BFA" />
-                            </Border>
+                    <!-- Header: Logo + Name -->
+                    <StackPanel Grid.Row="0" Margin="0,0,0,28">
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="FX"
+                                       FontSize="22"
+                                       FontWeight="ExtraBold"
+                                       Foreground="#8957FF"
+                                       VerticalAlignment="Center" />
+                            <TextBlock Text=" FileX"
+                                       FontSize="20"
+                                       FontWeight="Bold"
+                                       Foreground="#F5F5FA"
+                                       VerticalAlignment="Center" />
                         </StackPanel>
-                        <TextBlock Text="Universal File Converter" FontSize="11" Foreground="#94A3B8" />
+                        <TextBlock Text="Universal File Converter"
+                                   FontSize="11"
+                                   Foreground="#687087" />
                     </StackPanel>
 
                     <!-- Navigation Items -->
                     <StackPanel Grid.Row="1">
                         <ui:Button x:Name="NavDashboard"
-                                   Content="📊  Dashboard"
+                                   Content="  Dashboard"
                                    Appearance="Transparent"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Left"
                                    Padding="14,10"
                                    FontSize="13"
+                                   Margin="0,0,0,2"
                                    Click="NavDashboard_Click" />
 
                         <ui:Button x:Name="NavConvert"
-                                   Content="⚡  Convert"
+                                   Content="  Convert Files"
                                    Appearance="Transparent"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Left"
                                    Padding="14,10"
                                    FontSize="13"
+                                   Margin="0,0,0,2"
                                    Click="NavConvert_Click" />
 
                         <ui:Button x:Name="NavHistory"
-                                   Content="🕒  History"
+                                   Content="  History"
                                    Appearance="Transparent"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Left"
                                    Padding="14,10"
                                    FontSize="13"
+                                   Margin="0,0,0,2"
                                    Click="NavHistory_Click" />
 
                         <ui:Button x:Name="NavSettings"
-                                   Content="⚙  Settings"
+                                   Content="  Settings"
                                    Appearance="Transparent"
                                    HorizontalAlignment="Stretch"
                                    HorizontalContentAlignment="Left"
                                    Padding="14,10"
                                    FontSize="13"
+                                   Margin="0,0,0,2"
                                    Click="NavSettings_Click" />
                     </StackPanel>
 
-                    <!-- Bottom Floating Widget Quick Toggle Pill -->
-                    <Border Grid.Row="2" Background="#1A1B2B" BorderBrush="#292B3E" BorderThickness="1" CornerRadius="10" Padding="12,10">
+                    <!-- Footer: Widget toggle + version -->
+                    <Border Grid.Row="2"
+                            Background="#171A27"
+                            BorderBrush="#292D40"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="14,12">
                         <StackPanel>
-                            <TextBlock Text="Floating Widget" FontSize="11" FontWeight="SemiBold" Foreground="#CBD5E1" />
+                            <TextBlock Text="Floating Widget"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="#9CA3B8"
+                                       Margin="0,0,0,8" />
                             <ui:Button x:Name="BtnToggleWidget"
                                        Content="Hide Widget"
                                        Appearance="Secondary"
@@ -99,13 +124,21 @@
                                        FontSize="11"
                                        Padding="0,6"
                                        Click="ToggleWidget_Click" />
+                            <TextBlock Text="v1.0.0"
+                                       FontSize="10"
+                                       Foreground="#687087"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,8,0,0" />
                         </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- Main Page Content Frame -->
-            <Frame Grid.Column="1" x:Name="RootFrame" NavigationUIVisibility="Hidden" />
+            <!-- Main Content Frame -->
+            <Frame Grid.Column="1"
+                   x:Name="RootFrame"
+                   NavigationUIVisibility="Hidden"
+                   Background="#0F111A" />
         </Grid>
     </Grid>
 </ui:FluentWindow>
