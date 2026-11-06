@@ -176,15 +176,15 @@ class FormatRegistry:
         for fmt in _FORMATS:
             self._by_ext[fmt.ext] = fmt
 
-        # Build category groupings
+        # Build category groupings with Lucide icon keys
         self._categories: Dict[str, CategoryInfo] = {
-            "image":        CategoryInfo("image",        "Image",        "🖼️"),
-            "pdf":          CategoryInfo("pdf",          "PDF",          "📄"),
-            "document":     CategoryInfo("document",     "Document",     "📝"),
-            "spreadsheet":  CategoryInfo("spreadsheet",  "Spreadsheet",  "📊"),
-            "presentation": CategoryInfo("presentation", "Presentation", "📽️"),
-            "audio":        CategoryInfo("audio",        "Audio",        "🎵"),
-            "video":        CategoryInfo("video",        "Video",        "🎬"),
+            "image":        CategoryInfo("image",        "Image",        "image"),
+            "pdf":          CategoryInfo("pdf",          "PDF",          "pdf"),
+            "document":     CategoryInfo("document",     "Document",     "file-text"),
+            "spreadsheet":  CategoryInfo("spreadsheet",  "Spreadsheet",  "table"),
+            "presentation": CategoryInfo("presentation", "Presentation", "presentation"),
+            "audio":        CategoryInfo("audio",        "Audio",        "music"),
+            "video":        CategoryInfo("video",        "Video",        "video"),
         }
         for fmt in _FORMATS:
             if fmt.category in self._categories:
