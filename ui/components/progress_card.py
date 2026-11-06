@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QCursor
+from PySide6.QtGui import QCursor
 from PySide6.QtWidgets import (
     QWidget,
     QFrame,
@@ -22,6 +22,7 @@ from PySide6.QtWidgets import (
 )
 
 from utils.file_utils import open_file, open_containing_folder, human_readable_size
+from utils.icon_utils import get_svg_icon, get_svg_pixmap
 
 
 class ProgressCard(QFrame):
@@ -39,40 +40,42 @@ class ProgressCard(QFrame):
         self,
         source_path: str,
         target_format: str,
-        category_icon: str = "📄",
+        category_icon: str = "file-text",
         parent: Optional[QWidget] = None,
     ) -> None:
         super().__init__(parent)
         self.source_path = source_path
         self.target_format = target_format.upper()
         self.output_path: Optional[str] = None
+        self.category_icon = category_icon
 
         self.setObjectName("cardFrame")
         self.setStyleSheet(
             """
             QFrame#cardFrame {
-                background-color: #1a1b2a;
-                border: 1px solid #282a40;
+                background-color: #171A27;
+                border: 1px solid #292D40;
                 border-radius: 10px;
                 padding: 10px;
             }
             QFrame#cardFrame:hover {
-                border-color: #3b3e60;
+                border-color: #383D56;
             }
             """
         )
 
         main_layout = QVBoxLayout(self)
-        main_layout.setContentsMargins(12, 12, 12, 12)
+        main_layout.setContentsMargins(14, 12, 14, 12)
         main_layout.setSpacing(8)
 
         # Header: Icon + File Details + Format Badge
         header_layout = QHBoxLayout()
-        header_layout.setSpacing(10)
+        header_layout.setSpacing(12)
 
-        # Category Emoji Icon
-        self.icon_label = QLabel(category_icon, self)
-        self.icon_label.setFont(QFont("Segoe UI Emoji", 20))
+        # Category Vector Icon
+        self.icon_label = QLabel(self)
+        icon_name = category_icon if category_icon in ["image", "pdf", "file-text", "table", "presentation", "music", "video"] else "file-text"
+        self.icon_label.setPixmap(get_svg_pixmap(icon_name, "#8957FF", 22))
         self.icon_label.setStyleSheet("background: transparent;")
         header_layout.addWidget(self.icon_label)
 
@@ -83,7 +86,7 @@ class ProgressCard(QFrame):
         file_name = Path(source_path).name
         self.lbl_filename = QLabel(file_name, self)
         self.lbl_filename.setStyleSheet(
-            "background: transparent; color: #f1f5f9; font-weight: 600; font-size: 13px;"
+            "background: transparent; color: #F5F5FA; font-weight: 600; font-size: 13px;"
         )
 
         size_str = (
@@ -94,7 +97,7 @@ class ProgressCard(QFrame):
         src_ext = Path(source_path).suffix.lstrip(".").upper()
         self.lbl_meta = QLabel(f"{size_str} • {src_ext} → {self.target_format}", self)
         self.lbl_meta.setStyleSheet(
-            "background: transparent; color: #94a3b8; font-size: 11px;"
+            "background: transparent; color: #9CA3B8; font-size: 11px;"
         )
 
         info_layout.addWidget(self.lbl_filename)
@@ -105,8 +108,9 @@ class ProgressCard(QFrame):
         self.lbl_status = QLabel("Queued", self)
         self.lbl_status.setStyleSheet(
             """
-            background-color: #26283d;
-            color: #93c5fd;
+            background-color: #1D2030;
+            color: #9CA3B8;
+            border: 1px solid #292D40;
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 11px;
@@ -132,43 +136,46 @@ class ProgressCard(QFrame):
         self.actions_layout.setSpacing(8)
 
         self.btn_open_file = QPushButton("Open File", self)
+        self.btn_open_file.setIcon(get_svg_icon("external-link", "#F5F5FA", 13))
         self.btn_open_file.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_open_file.setFixedHeight(28)
         self.btn_open_file.setStyleSheet(
             """
             QPushButton {
-                background-color: #272942;
-                border: 1px solid #3d4168;
+                background-color: #8957FF;
+                border: 1px solid #9D71FF;
                 border-radius: 6px;
-                color: #e2e8f0;
+                color: #FFFFFF;
                 font-size: 11px;
+                font-weight: 600;
                 padding: 4px 12px;
             }
             QPushButton:hover {
-                background-color: #7c4dff;
-                border-color: #7c4dff;
-                color: #ffffff;
+                background-color: #9D71FF;
             }
             """
         )
         self.btn_open_file.clicked.connect(self._on_open_file)
 
         self.btn_open_folder = QPushButton("Open Folder", self)
+        self.btn_open_folder.setIcon(get_svg_icon("folder-open", "#9CA3B8", 13))
         self.btn_open_folder.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_open_folder.setFixedHeight(28)
         self.btn_open_folder.setStyleSheet(
             """
             QPushButton {
-                background-color: #202235;
-                border: 1px solid #333652;
+                background-color: #1D2030;
+                border: 1px solid #292D40;
                 border-radius: 6px;
-                color: #94a3b8;
+                color: #9CA3B8;
                 font-size: 11px;
+                font-weight: 600;
                 padding: 4px 12px;
             }
             QPushButton:hover {
-                background-color: #2d304a;
-                color: #f1f5f9;
+                background-color: #25293D;
+                color: #F5F5FA;
+                border-color: #383D56;
             }
             """
         )
@@ -189,8 +196,9 @@ class ProgressCard(QFrame):
         self.lbl_status.setText(f"Converting… {percent}%")
         self.lbl_status.setStyleSheet(
             """
-            background-color: #1e293b;
-            color: #60a5fa;
+            background-color: #1D2030;
+            color: #8957FF;
+            border: 1px solid #383D56;
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 11px;
@@ -205,7 +213,7 @@ class ProgressCard(QFrame):
         self.progress_bar.setStyleSheet(
             """
             QProgressBar::chunk {
-                background-color: #10b981;
+                background-color: #22C55E;
                 border-radius: 5px;
             }
             """
@@ -213,8 +221,9 @@ class ProgressCard(QFrame):
         self.lbl_status.setText("✓ Completed")
         self.lbl_status.setStyleSheet(
             """
-            background-color: #064e3b;
-            color: #34d399;
+            background-color: #14281E;
+            color: #22C55E;
+            border: 1px solid #1E4631;
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 11px;
@@ -229,7 +238,7 @@ class ProgressCard(QFrame):
         self.progress_bar.setStyleSheet(
             """
             QProgressBar::chunk {
-                background-color: #ef4444;
+                background-color: #EF4444;
                 border-radius: 5px;
             }
             """
@@ -239,8 +248,9 @@ class ProgressCard(QFrame):
         self.lbl_status.setToolTip(error_message)
         self.lbl_status.setStyleSheet(
             """
-            background-color: #450a0a;
-            color: #f87171;
+            background-color: #2D141A;
+            color: #EF4444;
+            border: 1px solid #4C1E26;
             border-radius: 6px;
             padding: 4px 10px;
             font-size: 11px;
