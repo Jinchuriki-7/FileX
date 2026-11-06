@@ -11,7 +11,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtGui import QFont, QCursor, QColor
+from PySide6.QtGui import QCursor, QColor
 from PySide6.QtWidgets import (
     QDialog,
     QVBoxLayout,
@@ -30,7 +30,7 @@ from core.format_registry import FormatRegistry
 from core.conversion_manager import ConversionManager
 from core.settings_manager import SettingsManager
 from utils.file_utils import human_readable_size, open_file, open_containing_folder
-from ui.components.animated_button import AnimatedButton
+from utils.icon_utils import get_svg_icon, get_svg_pixmap
 
 
 class ConversionDialog(QDialog):
@@ -60,7 +60,7 @@ class ConversionDialog(QDialog):
         self.active_worker = None
 
         self.setWindowTitle("FileX — Convert File")
-        self.setMinimumWidth(440)
+        self.setMinimumWidth(450)
         self.setWindowFlags(Qt.Dialog | Qt.WindowStaysOnTopHint | Qt.FramelessWindowHint)
         self.setAttribute(Qt.WA_TranslucentBackground, True)
 
@@ -71,14 +71,13 @@ class ConversionDialog(QDialog):
     # UI Setup
     # ----------------------------------------------------------------------
     def _build_ui(self) -> None:
-        # Container widget with border radius and background
         self.container = QWidget(self)
         self.container.setObjectName("dialogContainer")
         self.container.setStyleSheet(
             """
             QWidget#dialogContainer {
-                background-color: #171826;
-                border: 1px solid #32354f;
+                background-color: #171A27;
+                border: 1px solid #292D40;
                 border-radius: 14px;
             }
             """
@@ -95,19 +94,19 @@ class ConversionDialog(QDialog):
         outer_layout.addWidget(self.container)
 
         self.layout = QVBoxLayout(self.container)
-        self.layout.setContentsMargins(24, 22, 24, 22)
+        self.layout.setContentsMargins(22, 20, 22, 20)
         self.layout.setSpacing(14)
 
         # Title bar: App icon + Title + Close [X]
         title_bar = QHBoxLayout()
-        title_icon = QLabel("⚡", self)
-        title_icon.setFont(QFont("Segoe UI Emoji", 14))
-        title_icon.setStyleSheet("color: #7c4dff;")
+        title_icon = QLabel(self)
+        title_icon.setPixmap(get_svg_pixmap("zap", "#8957FF", 18))
 
         self.lbl_heading = QLabel("Convert File", self)
-        self.lbl_heading.setStyleSheet("font-size: 15px; font-weight: 700; color: #f8fafc;")
+        self.lbl_heading.setStyleSheet("font-size: 15px; font-weight: 700; color: #F5F5FA;")
 
-        btn_close = QPushButton("✕", self)
+        btn_close = QPushButton(self)
+        btn_close.setIcon(get_svg_icon("close", "#9CA3B8", 14))
         btn_close.setFixedSize(26, 26)
         btn_close.setCursor(QCursor(Qt.PointingHandCursor))
         btn_close.setStyleSheet(
@@ -115,13 +114,10 @@ class ConversionDialog(QDialog):
             QPushButton {
                 background: transparent;
                 border: none;
-                color: #94a3b8;
-                font-size: 13px;
                 border-radius: 13px;
             }
             QPushButton:hover {
-                background-color: #2b2d42;
-                color: #ffffff;
+                background-color: #1D2030;
             }
             """
         )
@@ -137,18 +133,17 @@ class ConversionDialog(QDialog):
         self.file_card = QWidget(self)
         self.file_card.setStyleSheet(
             """
-            background-color: #1f2033;
-            border: 1px solid #2d304a;
+            background-color: #1D2030;
+            border: 1px solid #292D40;
             border-radius: 10px;
-            padding: 8px;
+            padding: 4px;
             """
         )
         card_layout = QHBoxLayout(self.file_card)
         card_layout.setContentsMargins(12, 10, 12, 10)
         card_layout.setSpacing(12)
 
-        self.lbl_file_icon = QLabel("📄", self.file_card)
-        self.lbl_file_icon.setFont(QFont("Segoe UI Emoji", 26))
+        self.lbl_file_icon = QLabel(self.file_card)
         self.lbl_file_icon.setStyleSheet("background: transparent;")
 
         meta_layout = QVBoxLayout()
@@ -156,12 +151,12 @@ class ConversionDialog(QDialog):
 
         self.lbl_file_name = QLabel("filename.ext", self.file_card)
         self.lbl_file_name.setStyleSheet(
-            "background: transparent; font-weight: 600; color: #f1f5f9; font-size: 13px;"
+            "background: transparent; font-weight: 600; color: #F5F5FA; font-size: 13px;"
         )
 
         self.lbl_file_meta = QLabel("0 KB • Format", self.file_card)
         self.lbl_file_meta.setStyleSheet(
-            "background: transparent; color: #94a3b8; font-size: 11px;"
+            "background: transparent; color: #9CA3B8; font-size: 11px;"
         )
 
         meta_layout.addWidget(self.lbl_file_name)
@@ -175,7 +170,7 @@ class ConversionDialog(QDialog):
         fmt_layout.setSpacing(6)
 
         lbl_target_prompt = QLabel("Select Target Format:", self)
-        lbl_target_prompt.setStyleSheet("color: #cbd5e1; font-size: 12px; font-weight: 600;")
+        lbl_target_prompt.setStyleSheet("color: #9CA3B8; font-size: 12px; font-weight: 600;")
 
         self.combo_formats = QComboBox(self)
         self.combo_formats.setFixedHeight(36)
@@ -189,32 +184,20 @@ class ConversionDialog(QDialog):
         dir_layout = QHBoxLayout()
         dir_layout.setSpacing(8)
 
+        lbl_save_to = QLabel("Save to:", self)
+        lbl_save_to.setStyleSheet("color: #687087; font-size: 11px;")
+
         self.lbl_out_dir = QLabel(self.settings.output_folder, self)
-        self.lbl_out_dir.setStyleSheet("color: #94a3b8; font-size: 11px;")
+        self.lbl_out_dir.setStyleSheet("color: #9CA3B8; font-size: 11px;")
         self.lbl_out_dir.setToolTip(self.settings.output_folder)
 
         btn_browse_dir = QPushButton("Browse…", self)
+        btn_browse_dir.setIcon(get_svg_icon("folder-open", "#F5F5FA", 12))
         btn_browse_dir.setFixedHeight(28)
         btn_browse_dir.setCursor(QCursor(Qt.PointingHandCursor))
-        btn_browse_dir.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #24263a;
-                border: 1px solid #363956;
-                border-radius: 6px;
-                color: #cbd5e1;
-                font-size: 11px;
-                padding: 4px 10px;
-            }
-            QPushButton:hover {
-                background-color: #2f324d;
-                color: #ffffff;
-            }
-            """
-        )
         btn_browse_dir.clicked.connect(self._browse_output_dir)
 
-        dir_layout.addWidget(QLabel("Save to:", self), 0)
+        dir_layout.addWidget(lbl_save_to, 0)
         dir_layout.addWidget(self.lbl_out_dir, 1)
         dir_layout.addWidget(btn_browse_dir, 0)
         self.layout.addLayout(dir_layout)
@@ -223,14 +206,14 @@ class ConversionDialog(QDialog):
         self.progress_bar = QProgressBar(self)
         self.progress_bar.setRange(0, 100)
         self.progress_bar.setValue(0)
-        self.progress_bar.setFixedHeight(8)
+        self.progress_bar.setFixedHeight(6)
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setVisible(False)
         self.layout.addWidget(self.progress_bar)
 
         self.lbl_status = QLabel("", self)
         self.lbl_status.setAlignment(Qt.AlignCenter)
-        self.lbl_status.setStyleSheet("color: #a78bfa; font-size: 12px; font-weight: 500;")
+        self.lbl_status.setStyleSheet("color: #8957FF; font-size: 12px; font-weight: 600;")
         self.lbl_status.setVisible(False)
         self.layout.addWidget(self.lbl_status)
 
@@ -242,44 +225,17 @@ class ConversionDialog(QDialog):
         success_layout.setSpacing(10)
 
         self.btn_open_file = QPushButton("Open Converted File", self)
-        self.btn_open_file.setFixedHeight(34)
+        self.btn_open_file.setIcon(get_svg_icon("external-link", "#FFFFFF", 14))
+        self.btn_open_file.setFixedHeight(36)
         self.btn_open_file.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_open_file.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #7c4dff;
-                border: none;
-                border-radius: 6px;
-                color: #ffffff;
-                font-weight: 600;
-                padding: 6px 14px;
-            }
-            QPushButton:hover {
-                background-color: #8f64ff;
-            }
-            """
-        )
+        self.btn_open_file.setObjectName("primaryButton")
         self.btn_open_file.clicked.connect(self._open_result_file)
 
         self.btn_open_folder = QPushButton("Open Folder", self)
-        self.btn_open_folder.setFixedHeight(34)
+        self.btn_open_folder.setIcon(get_svg_icon("folder-open", "#F5F5FA", 14))
+        self.btn_open_folder.setFixedHeight(36)
         self.btn_open_folder.setCursor(QCursor(Qt.PointingHandCursor))
-        self.btn_open_folder.setStyleSheet(
-            """
-            QPushButton {
-                background-color: #24263a;
-                border: 1px solid #363956;
-                border-radius: 6px;
-                color: #cbd5e1;
-                font-weight: 600;
-                padding: 6px 14px;
-            }
-            QPushButton:hover {
-                background-color: #2f324d;
-                color: #ffffff;
-            }
-            """
-        )
+        self.btn_open_folder.setObjectName("secondaryButton")
         self.btn_open_folder.clicked.connect(self._open_result_folder)
 
         success_layout.addWidget(self.btn_open_file)
@@ -300,8 +256,11 @@ class ConversionDialog(QDialog):
         self.btn_cancel.setObjectName("secondaryButton")
         self.btn_cancel.clicked.connect(self.reject)
 
-        self.btn_convert = AnimatedButton("Convert Now", self, primary=True)
+        self.btn_convert = QPushButton("Convert Now", self)
+        self.btn_convert.setIcon(get_svg_icon("zap", "#FFFFFF", 14))
         self.btn_convert.setFixedHeight(36)
+        self.btn_convert.setObjectName("primaryButton")
+        self.btn_convert.setCursor(QCursor(Qt.PointingHandCursor))
         self.btn_convert.clicked.connect(self._start_conversion)
 
         btn_layout.addWidget(self.btn_cancel)
@@ -324,17 +283,9 @@ class ConversionDialog(QDialog):
         category_name = category.capitalize() if category else "Unknown"
         self.lbl_file_meta.setText(f"{size_str} • {category_name} ({ext.upper()})")
 
-        # Category icon
-        icon_map = {
-            "image": "🖼️",
-            "pdf": "📄",
-            "document": "📝",
-            "spreadsheet": "📊",
-            "presentation": "📽️",
-            "audio": "🎵",
-            "video": "🎬",
-        }
-        self.lbl_file_icon.setText(icon_map.get(category, "📁"))
+        # Category vector icon
+        cat_icon = category if category in ["image", "pdf", "file-text", "table", "presentation", "music", "video"] else "file"
+        self.lbl_file_icon.setPixmap(get_svg_pixmap(cat_icon, "#8957FF", 28))
 
         # Populate valid target formats
         self.combo_formats.clear()
@@ -399,7 +350,7 @@ class ConversionDialog(QDialog):
         if success:
             self.progress_bar.setValue(100)
             self.lbl_status.setText("✓ Conversion Complete!")
-            self.lbl_status.setStyleSheet("color: #34d399; font-size: 13px; font-weight: 700;")
+            self.lbl_status.setStyleSheet("color: #22C55E; font-size: 13px; font-weight: 700;")
             self.output_results.append(result_or_err)
             self.conversion_complete.emit(result_or_err)
 
@@ -419,7 +370,7 @@ class ConversionDialog(QDialog):
                 self.btn_convert.setVisible(False)
         else:
             self.lbl_status.setText(f"✕ Error: {result_or_err}")
-            self.lbl_status.setStyleSheet("color: #f87171; font-size: 12px; font-weight: 600;")
+            self.lbl_status.setStyleSheet("color: #EF4444; font-size: 12px; font-weight: 600;")
             self.button_bar.setVisible(True)
             self.btn_convert.setText("Retry")
             self.btn_convert.setEnabled(True)
