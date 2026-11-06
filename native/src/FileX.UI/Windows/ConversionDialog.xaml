@@ -10,57 +10,115 @@
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent">
-    <Border Background="#181926" BorderBrush="#32354F" BorderThickness="1" CornerRadius="14" Padding="24">
+    <Border Background="#171A27"
+            BorderBrush="#292D40"
+            BorderThickness="1"
+            CornerRadius="12"
+            Padding="24">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="4" Opacity="0.6" Color="#000000" />
+            <DropShadowEffect BlurRadius="32"
+                              ShadowDepth="4"
+                              Opacity="0.7"
+                              Color="#000000" />
         </Border.Effect>
 
         <StackPanel>
-            <!-- Title Bar -->
-            <Grid>
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="⚡" FontSize="16" Foreground="#7C4DFF" VerticalAlignment="Center" />
-                    <TextBlock Text="Convert File" FontSize="16" FontWeight="Bold" Foreground="#F8FAFC" VerticalAlignment="Center" />
+            <!-- Dialog Title Bar -->
+            <Grid Margin="0,0,0,16">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="FX"
+                               FontSize="14"
+                               FontWeight="ExtraBold"
+                               Foreground="#8957FF"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0" />
+                    <TextBlock Text="Convert File"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Foreground="#F5F5FA"
+                               VerticalAlignment="Center" />
                 </StackPanel>
-                <ui:Button Content="✕" Appearance="Transparent" HorizontalAlignment="Right" Padding="6,2" Click="Cancel_Click" />
+                <ui:Button Content="x"
+                           Appearance="Transparent"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"
+                           Padding="6,2"
+                           FontSize="13"
+                           Click="Cancel_Click" />
             </Grid>
 
             <!-- File Summary Card -->
-            <ui:Card Padding="14" Background="#1F2033" BorderBrush="#2D304A">
+            <Border Background="#1D2030"
+                    BorderBrush="#292D40"
+                    BorderThickness="1"
+                    CornerRadius="8"
+                    Padding="14"
+                    Margin="0,0,0,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock x:Name="TxtCategoryIcon" Text="📄" FontSize="28" VerticalAlignment="Center" Margin="0,0,14,0" />
-                    <StackPanel Grid.Column="1">
-                        <TextBlock x:Name="TxtFileName" Text="file.png" FontWeight="Bold" Foreground="#F1F5F9" TextTrimming="CharacterEllipsis" />
-                        <TextBlock x:Name="TxtFileMeta" Text="120 KB • Image (PNG)" FontSize="11" Foreground="#94A3B8" />
+                    <TextBlock x:Name="TxtCategoryIcon"
+                               Text="[  ]"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="#8957FF"
+                               VerticalAlignment="Center"
+                               Margin="0,0,14,0" />
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtFileName"
+                                   Text="file.png"
+                                   FontWeight="Bold"
+                                   FontSize="13"
+                                   Foreground="#F5F5FA"
+                                   TextTrimming="CharacterEllipsis"
+                                   Margin="0,0,0,2" />
+                        <TextBlock x:Name="TxtFileMeta"
+                                   Text="120 KB  •  Image (PNG)"
+                                   FontSize="11"
+                                   Foreground="#9CA3B8" />
                     </StackPanel>
                 </Grid>
-            </ui:Card>
+            </Border>
 
             <!-- Target Format Selection -->
-            <StackPanel>
-                <TextBlock Text="Select Target Format:" FontWeight="SemiBold" Foreground="#CBD5E1" FontSize="12" />
-                <ComboBox x:Name="ComboFormats" Height="36" />
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Text="Select Target Format:"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="#CBD5E1"
+                           Margin="0,0,0,6" />
+                <ComboBox x:Name="ComboFormats"
+                          Height="36"
+                          Background="#12141F"
+                          BorderBrush="#292D40"
+                          Foreground="#F5F5FA" />
             </StackPanel>
 
             <!-- Action Buttons -->
-            <Grid Margin="0,8,0,0">
+            <Grid Margin="0,4,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <ui:Button Content="Cancel" Appearance="Secondary" Margin="0,0,6,0" Click="Cancel_Click" />
+                <ui:Button Grid.Column="0"
+                           Content="Cancel"
+                           Appearance="Secondary"
+                           Padding="14,8"
+                           Margin="0,0,6,0"
+                           HorizontalAlignment="Stretch"
+                           Click="Cancel_Click" />
                 <ui:Button Grid.Column="1"
                            x:Name="BtnConvert"
                            Content="Convert Now"
                            Appearance="Primary"
-                           Background="#7C4DFF"
+                           Background="#8957FF"
                            Foreground="#FFFFFF"
                            FontWeight="Bold"
+                           Padding="14,8"
                            Margin="6,0,0,0"
+                           HorizontalAlignment="Stretch"
                            Click="Convert_Click" />
             </Grid>
         </StackPanel>
